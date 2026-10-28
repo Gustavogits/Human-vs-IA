@@ -1,0 +1,56 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; width: 100vw; height: 100vh; overflow: hidden; font-family: "Courier New", monospace; user-select: none; }
+
+/* palco fixo 1672x941, escalado pelo JS para caber na janela */
+#jogo { position: absolute; left: 50%; top: 50%; width: 1672px; height: 941px; transform-origin: 0 0; overflow: hidden; }
+#jogo img, #jogo div { image-rendering: pixelated; }
+#fundo { position: absolute; left: 0; top: 0; width: 1672px; height: 941px; }
+#campo { position: absolute; left: 0; top: 0; width: 1672px; height: 941px; }
+
+.cel { position: absolute; width: 97px; height: 97px; }
+#campo.plantando .cel:hover { background: rgba(255, 255, 255, .28); cursor: pointer; }
+
+/* personagens e robôs */
+.ent { position: absolute; left: 0; top: 0; pointer-events: none; }
+.ent img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.sombra { position: absolute; left: 12%; bottom: -5px; width: 76%; height: 14px; border-radius: 50%; background: rgba(0, 0, 0, .38); filter: blur(2px); }
+.robo img { animation: andar var(--dur, .7s) linear infinite; animation-delay: var(--delay, 0s); transform-origin: 50% 100%; }
+.parado img { animation: atacar .9s ease-in-out infinite; animation-delay: 0s; }
+/* passada: dois passos por ciclo, balanço lateral e leve amassa/estica */
+@keyframes andar {
+  0%   { transform: scaleX(-1) translateY(0)    rotate(-2.5deg) scale(1.02, .975); animation-timing-function: cubic-bezier(.3, .6, .4, 1); }
+  25%  { transform: scaleX(-1) translateY(-6px) rotate(0deg)    scale(.99, 1.015); animation-timing-function: cubic-bezier(.6, 0, .7, .4); }
+  50%  { transform: scaleX(-1) translateY(0)    rotate(2.5deg)  scale(1.02, .975); animation-timing-function: cubic-bezier(.3, .6, .4, 1); }
+  75%  { transform: scaleX(-1) translateY(-6px) rotate(0deg)    scale(.99, 1.015); animation-timing-function: cubic-bezier(.6, 0, .7, .4); }
+  100% { transform: scaleX(-1) translateY(0)    rotate(-2.5deg) scale(1.02, .975); }
+}
+@keyframes atacar { 0%, 100% { transform: scaleX(-1) rotate(0deg) translateX(0); } 50% { transform: scaleX(-1) rotate(-4deg) translateX(-4px); } }
+.def img { animation: respirar 1.6s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes respirar { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.025); } }
+
+.tiro { position: absolute; left: 0; top: 0; height: 5px; border-radius: 3px; background: #ffe066; box-shadow: 0 0 6px #ffb300; pointer-events: none; z-index: 50; }
+.tiro.forte { background: #ff6a4d; box-shadow: 0 0 8px #ff2a00; height: 6px; }
+
+/* sol */
+.sol-icone, .sol-obj { display: inline-block; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fffbc2, #ffd500 55%, #ff9d00); box-shadow: 0 0 18px 6px rgba(255, 210, 0, .6); }
+.sol-obj { position: absolute; left: 0; top: 0; width: 56px; height: 56px; cursor: pointer; z-index: 100; }
+
+/* interface superior */
+#topo { position: absolute; left: 0; top: 0; width: 100%; height: 112px; padding: 8px 24px; display: flex; align-items: center; gap: 10px; background: linear-gradient(rgba(0, 0, 0, .85), rgba(0, 0, 0, .6) 80%, rgba(0, 0, 0, 0)); z-index: 200; }
+#sol { width: 120px; height: 92px; background: rgba(25, 20, 15, .9); border: 3px solid #c9a227; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #fff; font-size: 26px; }
+#sol .sol-icone { width: 30px; height: 30px; box-shadow: 0 0 10px 3px rgba(255, 210, 0, .6); }
+#cards { display: flex; gap: 8px; margin-left: 10px; }
+.card { width: 96px; height: 96px; background: rgba(25, 25, 32, .92); border: 3px solid #5c5c6e; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 4px 2px; }
+.card img { height: 54px; max-width: 86px; object-fit: contain; image-rendering: pixelated; }
+.card span { font-size: 12px; color: #ddd; font-weight: bold; }
+.card b { font-size: 16px; color: #ffd500; }
+.card.sel { border-color: #ffd500; box-shadow: 0 0 12px #ffd500; }
+.card.off { opacity: .4; cursor: not-allowed; }
+#info { margin-left: auto; color: #fff; font-size: 20px; text-shadow: 2px 2px 0 #000; }
+button { font-family: inherit; font-size: 22px; font-weight: bold; padding: 14px 22px; background: #2d2d3a; color: #fff; border: 3px solid #c9a227; border-radius: 8px; cursor: pointer; }
+button:hover { background: #44445a; }
+button.ativo { background: #c9a227; color: #000; }
+
+#aviso { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 24px; background: rgba(0, 0, 0, .6); color: #fff; font-size: 72px; font-weight: bold; text-shadow: 4px 4px 0 #000; z-index: 150; }
+#aviso button { font-size: 30px; }
+.pausado .robo img, .pausado .def img, .pausado .sol-obj { animation-play-state: paused; }
